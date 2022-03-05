@@ -1,6 +1,7 @@
 [packages]
 fire = "*"
 csv = "*"
+pathlib = "*"
 
 [requires]
 python_version = "2.7"
