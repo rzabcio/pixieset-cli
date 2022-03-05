@@ -24,7 +24,7 @@ def load_order_file(csv_orders_file):
 def create_order_dirs(order, dst_dir):
     for d in ['%s/%s' % (dst_dir, d) for d in order.get_dst_dirs()]:
         if(not os.path.exists(d)):
-            os.makedirs(d, exist_ok=True)
+            os.makedirs(d)
 
 
 def find_file(filename, src_dir):
@@ -49,18 +49,18 @@ class Order(object):
             self.format = None
         self.digital = 'plik' in self.product.lower()
 
-    def get_dst_dirs(self):
-        return [re.sub(r'(.*)/[^/]*', r'\1', dst_file) for dst_file in self.get_dst_files()]
+    def get_dst_dirs(self, dst_root_dir='.'):
+        return [re.sub(r'(.*)/[^/]*', r'\1', dst_file) for dst_file in self.get_dst_files(dst_root_dir)]
 
-    def get_dst_files(self):
+    def get_dst_files(self, dst_root_dir='.'):
         dirs = []
         if(self.format):
             if(self.quantity==1):
-                dirs.append('%s/%s/%s' % (self.order_no, self.format, self.filename))
+                dirs.append('%s/%s/%s/%s' % (dst_root_dir, self.order_no, self.format, self.filename))
             else:
-                dirs.append('%s/%s/%s/%s' % (self.order_no, self.format, self.quantity, self.filename))
+                dirs.append('%s/%s/%s/%s/%s' % (dst_root_dir, self.order_no, self.format, self.quantity, self.filename))
         if(self.digital):
-            dirs.append('%s/d/%s' % (self.order_no, self.filename))
+            dirs.append('%s/%s/d/%s' % (dst_root_dir, self.order_no, self.filename))
         return dirs
 
     def to_json(self):
@@ -68,7 +68,7 @@ class Order(object):
 
 
 class Pixieset(object):
-    def order(self, verb, src_dir='../photos', csv_orders_file='order.csv', dst_dir='../orders'):
+    def order(self, csv_orders_file, src_dir='../photos', dst_dir='../orders'):
         orders = load_order_file(csv_orders_file)
         if(not orders):
             print('!!! order file %s does not exists or has wrong order number' % (csv_orders_file))
@@ -77,7 +77,7 @@ class Pixieset(object):
         for order in orders:
             create_order_dirs(order, dst_dir)
             src_file = find_file(order.filename, src_dir)
-            for dst_file in order.get_dst_files():
+            for dst_file in order.get_dst_files(dst_dir):
                 if not src_file:
                     print('!!! source file %s does not exist' % (order.filename))
                     continue
