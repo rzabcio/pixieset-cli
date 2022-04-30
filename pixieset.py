@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 import shutil
 
-
+# loading order file from Pixieset and changing it to 'Order' object list
 def load_order_file(csv_orders_file):
     if(not os.path.isfile(csv_orders_file)):
         return None
@@ -36,6 +36,7 @@ def find_file(filename, src_dir):
     return files[0]
 
 
+# Order object - in general it is one record from exported .csv + helper functions
 class Order(object):
     def __init__(self, order_no, order_dict):
         self.order_no = order_no
@@ -67,6 +68,7 @@ class Order(object):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=2)
 
 
+# CLI class - one method is one command type
 class Pixieset(object):
     def order(self, csv_orders_file, src_dir='../photos', dst_dir='../orders'):
         orders = load_order_file(csv_orders_file)
